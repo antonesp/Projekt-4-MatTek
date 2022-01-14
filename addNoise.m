@@ -11,7 +11,7 @@ elseif (noiseLevel<0) || (100<noiseLevel)
     %Sørger for at noiseLevel er inden for det rigtige interval
     error('noiseLevel skal være et positivt tal under 100');
 
-elseif (noiseLevel>=1) && (100<=noiseLevel) %Hvis man angiver i procent
+elseif (1<=noiseLevel) &&(100>=noiseLevel) %Hvis man angiver i procent
     [n,m]=size(Image); %Definerer størrelsen af billedet
 r = randn(n,m);        %Laver en matrix med pseudotilfældige tal efter normalfordelingen
 r = r/norm(r,'fro');   %Deler med Frobenius-gennemsnittet af matricen r.
