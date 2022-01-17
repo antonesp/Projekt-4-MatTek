@@ -1,61 +1,99 @@
-
-% Et dokument som indeholder og tester funktionerne der skal bruges til projektet
-clear all
+%% Projekt 4
 close all
-%% Først generes data
-im1 = generate_simdata(500);
+clear all
+%% Generer billeder og gemmer dem
+k=256;
+im1 = generate_simdata(k);
+im2 = generate_simdata(k,'C:\Users\clar1\OneDrive\Dokumenter\DTU\Matematik og teknologi\Projekt 4');
+im3 = genPhantom(k);
 
-%% Støj tilføjes
+%% Fourirtransformation
+f=fft2(im1);
+imagesc(log(abs(f)));
+
+fshift=fftshift(f);
+imagesc(log(abs(fshift)));
+
+%Indsæt hvid støj på billedet.
+fNoisy=addNoise(fshift,0.01);
+figure;
+imagesc(log(abs(fNoisy)));
+
+%% Rekonstruktion af billeder
+inv = ifft2(fftshift(fshift));       %Billed uden støj
+invNoisy = ifft2(fftshift(fNoisy));  %Billed med støj
+figure;
+imshow(inv);
+figure;
+imshow(invNoisy);
+
+%% Sampling i DFT rummet
+Lim = imageSampling(fshift,0.5);
+NoisyLim = imageSampling(fNoisy,0.5);
+
+figure;
+imagesc(log(abs(Lim)));
+figure;
+imagesc(log(abs(NoisyLim)));
 
 
+invLim = ifft2(fftshift(Lim));
+invNoisyLim = ifft2(fftshift(NoisyLim));
 
-%% Fouriertransformation
+figure;
+imshow(invLim);
+figure;
+imshow(invNoisyLim);
+
+%% Udregn forskellen mellem to billeder
+error=errorMeasure(inv,invLim);
+
+%% Nu skal vi prøve at plotte fejlen ift. mængden af støj.
+close all
+im1 = generate_simdata(k);
+x=[1:100];
+y=zeros(1,100);
 
 f=fft2(im1);
-imagesc(log(abs(f)))
+fshift=fftshift(f);
+inv = ifft2(fftshift(fshift));
+    
+for i=1:100
+    fNoisy=addNoise(fshift,i);
+    invNoisy = ifft2(ifftshift(fNoisy));
+    
+    e=errorMeasure(inv,invNoisy);
+    y(i)=e;
+end
+figure;
+plot(x,y);
+grid on
+xlabel('Procent støj');
+ylabel('Error');
 
-fshift = fftshift(f);
-
-% Vi laver ffthshift uden støj
-figure(2);
-imagesc(log(abs(fshift)));
-% Vi laver fftshift med støj
-fNoise = addnoise(fshift,0.1);
-
-figure(3);
-imagesc(log(abs(fNoise)));
-
-%% Rekonstruktion
-
-% Vi skal nu rekonstruere billedet ved hjælp inver fftshift
-
-% Vi laver igen 2 billeder et med støj og et uden.
-infshift = ifft2(fshift);
-figure(4)
-imagesc(abs(infshift))
-
-infNoise = ifft2(fNoise);
-figure(5)
-imagesc(abs(infNoise))
-
-%% Rekonstruktion med image sampling
-samFshift = imageSampling(fshift,0.5);
-
-samfNoise = imageSampling(fNoise,0.5);
-
-figure(6)
-imagesc(log(abs(samFshift)));
-
-figure(7)
-imagesc(log(abs(samfNoise)));
-
-% Vi kører rekonstruktionen nu
-
-Saminfshift = ifft2(samFshift);
-figure(8)
-imagesc(abs(Saminfshift))
+%% Plot fejlen ved sampling
+im1 = generate_simdata(k);
+x=[1:100];
+y2=zeros(1,100);
+for i=1:99
+    f=fft2(im1);
+    fshift=fftshift(f);
+    inv = ifft2(fshift);
+    
+    Lim = imageSampling(fshift,i/100);
+    invLim = ifft2(Lim);
+    
+    e=errorMeasure(inv,invLim);
+    y2(i)=e;
+end
 
 
-SaminfNoise = ifft2(samfNoise);
-figure(9)
-imagesc(abs(SaminfNoise))
+figure;
+plot(x,y2);
+
+figure;
+plot3(x,y,y2)
+grid on
+xlabel('Procent støj/størrelse af sampling');
+ylabel('Error ved støj');
+zlabel('Error ved sampling') 
