@@ -13,17 +13,21 @@ elseif (noiseLevel<0) || (100<noiseLevel)
 
 elseif (1<=noiseLevel) &&(100>=noiseLevel) %Hvis man angiver i procent
     [n,m]=size(Image); %Definerer størrelsen af billedet
+    noise=noiseLevel/100;
 r = randn(n,m);        %Laver en matrix med pseudotilfældige tal efter normalfordelingen
 r = r/norm(r,'fro');   %Deler med Frobenius-gennemsnittet af matricen r.
+
+r2 = randn(n,m); 
+r2 = r2/norm(r2,'fro');
 %Laver en støjmatrix hvor støjniveauet kan forstørres eller formindskes.
-e = (noiseLevel/100)*r*norm(Image,'fro'); 
+e = noise*r*norm(real(Image),'fro')+noise*r2*norm(imag(Image),'fro')*1i;
 fNoisy = Image + e;    %Laver billed med støj.
 
 else %Hvis man angiver i tal mellem 0 og 1.
 [n,m]=size(Image);
 r = randn(n,m);
 r = r/norm(r,'fro');
-e = noiseLevel*r*norm(Image,'fro');
+e = noiseLevel*r*norm(real(Image),'fro')+noiseLevel*r*norm(imag(Image),'fro')*1i;
 fNoisy = Image + e;
 end
 
