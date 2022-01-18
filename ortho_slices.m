@@ -1,33 +1,21 @@
-%% Orthoslices
-function [O1,O2,O3] = ortho_slices(M,s1,s2,s3)
-%Laver tre orthoslices. En for hver retning i matricen M.
-%Input: 3D Matrix samt s1,s2 og s3, der angiver hvilket slice der skal
-%tages ud.
-%Forfatter: Clara Hollenbeck. 17-1-2022
-l=length(size(M));
-assert(l==3,'Dimensionen af M skal være 3');
+% Af Clara Hollenbeck og Anton Espholm.
+%Dato 18-01-2022
 
-[n,m,z]=size(M);
- 
-assert((s1>=0)&&(n>=s1),'s1 skal være mellem 1 og n')
-assert((s2>=0)&&(m>=s2),'s2 skal være mellem 1 og m')
-assert((s3>=0)&&(z>=s3),'s3 skal være mellem 1 og z')
+%input er en 3d matrix og 3 scalarer. Scalarende andgiver den ønskede
+%slice.
+%output er 3 matrixer som hver er slices i forskellige dimensioner af input
+%matrixen.
 
-if (s1>=1)&&(n>=s1)
-O1 = M(s1,:,:);
-O1=squeeze(O1);
-else 
-    O1=[];
-end
-if (s2>=1)&&(m>=s2)
- O2 = M(:,s2,:);
- O2=squeeze(O2);
-else
-    O2=[];
-end
-if (s3>=1)&&(z>=s3)
-O3 = M(:,:,s3);
-O3=squeeze(O3);
-else
-    O3=[];
-end
+function [o1,o2,o3] = ortho_slices(M,s1,s2,s3)
+
+[n,m,z] = size(M);
+sM = size(M);
+% Input undersøges.
+assert(length(sM) == 3,'Fejl ugyldig matrix, matrixen skal være 3 dimensionel')
+assert(ismember(s1,1:n)||ismember(s2,1:m)||ismember(s3,1:z),'Fejl dinne ønskede slices er ikke en del af matrixen')
+
+% Udsnittende af M defineres ved at sætte en dimension til en scalar og
+% squeeze til at fjerne alle dimensioner med en længde på 1.
+o1 = squeeze(M(s1,:,:));
+o2 = squeeze(M(:,s2,:));
+o3 = squeeze(M(:,:,s3));
