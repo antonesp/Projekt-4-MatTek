@@ -8,24 +8,11 @@ im2 = generate_simdata(k,'C:\Users\clar1\OneDrive\Dokumenter\DTU\Matematik og te
 im3 = genPhantom(k);
 
 %% Fourirtransformation
-f=fft2(im1);
-imagesc(log(abs(f)));
 
-fshift=fftshift(f);
-imagesc(log(abs(fshift)));
 
-%Indsæt hvid støj på billedet.
-fNoisy=addNoise(fshift,0.01);
-figure;
-imagesc(log(abs(fNoisy)));
 
 %% Rekonstruktion af billeder
-inv = ifft2(fftshift(fshift));       %Billed uden støj
-invNoisy = ifft2(fftshift(fNoisy));  %Billed med støj
-figure;
-imshow(inv);
-figure;
-imshow(invNoisy);
+
 
 %% Sampling i DFT rummet
 Lim = imageSampling(fshift,0.5);
@@ -50,17 +37,20 @@ error=errorMeasure(inv,invLim);
 
 %% Nu skal vi prøve at plotte fejlen ift. mængden af støj.
 close all
-im1 = generate_simdata(k);
+im2 = generate_simdata(k);
 x=[1:100];
 y=zeros(1,100);
 
-f=fft2(im1);
+f=fft2(im2);
 fshift=fftshift(f);
 inv = ifft2(fftshift(fshift));
     
 for i=1:100
     fNoisy=addNoise(fshift,i);
-    invNoisy = ifft2(ifftshift(fNoisy));
+    invNoisy = ifft2(fftshift(fNoisy));
+    
+    figure;
+    imagesc(abs(invNoisy));
     
     e=errorMeasure(inv,invNoisy);
     y(i)=e;
@@ -75,13 +65,13 @@ ylabel('Error');
 im1 = generate_simdata(k);
 x=[1:100];
 y2=zeros(1,100);
+f=fft2(im1);
+fshift=fftshift(f);
+inv = ifft2(fftshift(fshift));
+
 for i=1:99
-    f=fft2(im1);
-    fshift=fftshift(f);
-    inv = ifft2(fshift);
-    
     Lim = imageSampling(fshift,i/100);
-    invLim = ifft2(Lim);
+    invLim = ifft2(fftshift(Lim));
     
     e=errorMeasure(inv,invLim);
     y2(i)=e;
@@ -96,4 +86,17 @@ plot3(x,y,y2)
 grid on
 xlabel('Procent støj/størrelse af sampling');
 ylabel('Error ved støj');
-zlabel('Error ved sampling') 
+zlabel('Error ved sampling')
+%%
+close all
+load mouseheart.mat
+load A.mat
+load B.mat
+v=recon_volume(B,[]);
+[o,o1,o2] = ortho_slices(v,0,0,60);
+figure;
+imagesc(abs(o2));
+% 100,150
+%Billled A er et MR-scan af en hjerne
+
+%Billed B er et kranie.
