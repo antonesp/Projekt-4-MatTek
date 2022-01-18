@@ -8,7 +8,7 @@
 % Output er en matrix med midten lig signal, og resten lig 0. Størrelsen af
 % midten bestemmes af frac.
 
-% Af Anton Espholm
+% Af Anton Espholm og Clara Hollenbeck
 % Dato 14-01-2022
 
 function im = imageSampling(signal,frac)
