@@ -12,8 +12,10 @@ function sim = generate_simdata(k,texFiles)
 %Output: Et billede.
 
 %Input undersøges.
-assert(isstring(texFiles),'texFiles skal være lokationen af dine texture filet, hvis du ikke ønsker at bruge dem så lad texFiles være tom')
-assert(isstring(k),'Fejl x må ikke være en string')
+if exist('texFiles')
+    assert(~isstring(texFiles),'texFiles skal være lokationen af dine texture filet, hvis du ikke ønsker at bruge dem så lad texFiles være tom.')
+end
+assert(~isstring(k),'Fejl x må ikke være en string')
 k = floor(abs(k));
 assert(isinteger(int8(k))||k<=0,'Fejl x skal være et heltal over 0')
 
