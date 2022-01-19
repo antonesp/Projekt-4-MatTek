@@ -1,6 +1,7 @@
-function sim = generate_simdata(k,texFiles)
+function [sim,circle,tri,firkant] = generate_simdata(k,texFiles)
 % Af Clara Hollenbeck og Anton Espholm
-% Dato 18-01-2022
+% Dato 13-1-2022
+% Rettet 18-01-2022
 
 % generate_simdata har til opgave at genere billeder med 3 figurer, hvis
 % det ønskes kan texture inkluderes på billederne.
@@ -10,16 +11,10 @@ function sim = generate_simdata(k,texFiles)
 % vil der ikke bruges nogle texture.
 
 %Output: Et billede.
-
-%Input undersøges.
-if exist('texFiles')
-    assert(~isstring(texFiles),'texFiles skal være lokationen af dine texture filet, hvis du ikke ønsker at bruge dem så lad texFiles være tom.')
-end
 assert(~isstring(k),'Fejl x må ikke være en string')
 k = floor(abs(k));
 assert(isinteger(int8(k))||k<=0,'Fejl x skal være et heltal over 0')
-
-
+    
 %Først generes en cirkel.
 [n,m]=meshgrid(1:k,1:k);  %generer en matrix der er kxk og angiv n og m.
 centerX=unifrnd(0,k,1,1); %Lav centrum i en tilfældig x- og y-værdi
@@ -29,6 +24,7 @@ radius = k/8;             %Radius afhænher af k
 %Laver et 2D logical array, hvor de pixels der opfylder kravet får værdien
 %1 og de der ikke gør får værdien 0.
 circle=(m-centerY).^2+(n-centerX).^2<=radius.^2;
+
 
 %Herefter laves en Trekant. Først laves 3 x-værdier
 x1=unifrnd(0,k,1,1);
@@ -52,10 +48,14 @@ y=[x1,x2,x2,x1];
 
 firkant=poly2mask(x,y,k,k);
 
-%Cirkel,trekant og firkant lægges sammen, så de er i samme matrix.
+%Viser om figurerne skal være med eller uden textur.
+
 if ~exist('texFiles')
-    sim=circle+tri+firkant;
-else
+    %Cirkel,trekant og firkant lægges sammen, så de er i samme matrix.
+    sim=(circle+tri+firkant)*0.5; 
+elseif exist('texFiles')
+    assert(~isstring(texFiles),'texFiles skal være lokationen af dine texture filet, hvis du ikke ønsker at bruge dem så lad texFiles være tom.')
+
     im1 = append(texFiles,'\tex1.png');
     im2 = append(texFiles,'\tex2.png');
     im3 = append(texFiles,'\tex3.png');
@@ -72,7 +72,10 @@ else
     tex3 = imresize(tex3,[k,k]);
     tex3 = im2double(tex3);
 
-    sim=tex1.*circle+tex2.*tri+tex3.*firkant; 
+sim=(circle.*tex1+tri.*tex3+firkant.*tex2)*0.5;
 end
 
+%Viser billedet.
+figure;
+imshow(sim);
 
